@@ -35,7 +35,7 @@ class EditProfile extends BaseEditProfile
         $user = $this->getUser();
 
         return [
-            Grid::make(['default' => 3])
+            Grid::make(['default' => 1, 'md' => 3])
                 ->schema([
                     Section::make('Profile Photo')
                         ->schema([
@@ -54,7 +54,7 @@ class EditProfile extends BaseEditProfile
                                 ->helperText('Max 2MB. Square image recommended.')
                                 ->extraAttributes(['class' => 'flex justify-center']),
                         ])
-                        ->columnSpan(1),
+                        ->columnSpan(['default' => 1, 'md' => 1]),
 
                     Section::make('Personal Information')
                         ->schema([
@@ -69,16 +69,17 @@ class EditProfile extends BaseEditProfile
                                 ->rows(3)
                                 ->maxLength(65535),
                         ])
-                        ->columnSpan(1),
+                        ->columnSpan(['default' => 1, 'md' => 1]),
 
                     Section::make('Change Password')
                         ->schema([
                             $this->getPasswordFormComponent(),
                             $this->getPasswordConfirmationFormComponent(),
                         ])
-                        ->columnSpan(1),
+                        ->columnSpan(['default' => 1, 'md' => 1]),
 
                     Section::make('Identity Verification')
+                        ->visible(fn () => auth()->user()?->role !== 'admin')
                         ->schema([
                             Placeholder::make('id_status_badge')
                                 ->label('Current Status')
@@ -139,7 +140,7 @@ class EditProfile extends BaseEditProfile
                                 ->visible(fn () => ! $this->getUser()->fresh()->id_photo || $this->getUser()->fresh()->id_verified_at),
                         ])
                         ->columns(1)
-                        ->columnSpan(3),
+                        ->columnSpan(['default' => 1, 'md' => 3]),
                 ]),
         ];
     }

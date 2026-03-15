@@ -43,23 +43,30 @@ class BoarReservationResource extends Resource
             ->columns([
                 ImageColumn::make('boar.boar_picture')
                     ->label('Boar')
-                    ->size(50)
+                    ->size(80)
+                    ->alignCenter()
+                    ->extraAttributes(['class' => 'rounded-lg shadow-sm'])
                     ->defaultImageUrl(url('/img/no-image.svg')),
                 TextColumn::make('boar.boar_name')
                     ->label('Boar Name')
-                    ->weight('bold'),
+                    ->weight('bold')
+                    ->searchable()
+                    ->sortable(),
                 TextColumn::make('service_date')
+                    ->label('Service Date')
                     ->date()
-                    ->label('Service Date'),
+                    ->sortable()
+                    ->icon('heroicon-o-calendar')
+                    ->visibleFrom('md'),
                 TextColumn::make('reservation_status')
-                    ->badge()
                     ->label('Reservation')
+                    ->badge()
                     ->formatStateUsing(fn (string $state): string => match ($state) {
                         'pending_boar_raiser' => 'Pending boar raiser',
                         'confirmed' => 'Confirmed',
                         default => ucfirst(str_replace('_', ' ', $state)),
                     })
-                    ->color(fn(string $state): string => match ($state) {
+                    ->color(fn (string $state): string => match ($state) {
                         'pending' => 'warning',
                         'pending_boar_raiser' => 'info',
                         'accepted' => 'success',
@@ -68,20 +75,22 @@ class BoarReservationResource extends Resource
                         default => 'gray',
                     }),
                 TextColumn::make('service_status')
-                    ->badge()
                     ->label('Service')
-                    ->formatStateUsing(fn(string $state): string => $state === 'cancelled' ? 'Cancelled' : ucfirst($state))
-                    ->color(fn(string $state): string => match ($state) {
+                    ->badge()
+                    ->formatStateUsing(fn (string $state): string => $state === 'cancelled' ? 'Cancelled' : ucfirst($state))
+                    ->color(fn (string $state): string => match ($state) {
                         'pending' => 'gray',
                         'completed' => 'success',
                         'rejected' => 'danger',
                         'cancelled' => 'danger',
                         default => 'gray',
-                    }),
+                    })
+                    ->visibleFrom('md'),
                 TextColumn::make('rating.rating')
                     ->label('Your Rating')
                     ->formatStateUsing(fn ($state) => $state ? str_repeat('⭐', (int) $state) : '—')
-                    ->placeholder('—'),
+                    ->placeholder('—')
+                    ->visibleFrom('md'),
             ])
             ->actions([
                 Tables\Actions\Action::make('view')

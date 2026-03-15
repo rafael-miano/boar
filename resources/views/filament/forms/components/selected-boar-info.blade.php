@@ -7,8 +7,7 @@
         <div class="flex justify-start mb-4">
             <img src="{{ $boarImage }}"
                  alt="{{ $boarName }}"
-                 class="object-cover rounded-lg shadow-sm border border-gray-200 dark:border-gray-700"
-                 style="width: 280px; height: 270px;">
+                 class="object-cover rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 w-full max-w-[280px] h-auto aspect-[280/270]">
         </div>
     @endif
 

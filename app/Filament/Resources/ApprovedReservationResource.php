@@ -12,6 +12,9 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\Layout\Panel;
+use Filament\Tables\Columns\Layout\Stack;
+use Filament\Tables\Columns\Layout\Split;
 use Filament\Tables\Table;
 use Filament\Infolists\Components\Section;
 use Filament\Infolists\Components\TextEntry;
@@ -39,6 +42,21 @@ class ApprovedReservationResource extends Resource
         return 'Boar Reservation Requests';
     }
 
+    public static function getNavigationBadge(): ?string
+    {
+        $count = BoarReservation::query()
+            ->whereHas('boar', fn (Builder $q) => $q->where('user_id', auth()->id()))
+            ->where('reservation_status', 'pending_boar_raiser')
+            ->count();
+
+        return $count > 0 ? (string) $count : null;
+    }
+
+    public static function getNavigationBadgeColor(): ?string
+    {
+        return 'warning';
+    }
+
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()
@@ -49,66 +67,106 @@ class ApprovedReservationResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->contentGrid([
+                'md' => 2,
+                'xl' => 3,
+            ])
             ->columns([
-                ImageColumn::make('boar.boar_picture')
-                    ->label('Boar')
-                    ->size(50)
-                    ->defaultImageUrl(url('/img/no-image.svg')),
-                TextColumn::make('boar.boar_name')
-                    ->label('Boar Name')
-                    ->weight('bold'),
-                TextColumn::make('user.name')
-                    ->label('Customer'),
-                TextColumn::make('service_date')
-                    ->label('Service Date')
-                    ->date(),
-                TextColumn::make('reservation_status')
-                    ->label('Reservation status')
-                    ->badge()
-                    ->formatStateUsing(function ($state, $record): string {
-                        if (!$record) {
-                            return '—';
-                        }
-                        return match ($record->reservation_status) {
-                            'pending_boar_raiser' => 'Pending your decision',
-                            'accepted' => $record->service_status === 'pending' ? 'To fulfill' : 'Completed',
-                            'confirmed' => 'Confirmed (paid)',
-                            default => ucfirst($record->reservation_status),
-                        };
-                    })
-                    ->color(function ($state, $record): string {
-                        if (!$record) {
-                            return 'gray';
-                        }
-                        return match (true) {
-                            $record->reservation_status === 'pending_boar_raiser' => 'warning',
-                            $record->reservation_status === 'accepted' && $record->service_status === 'pending' => 'info',
-                            $record->reservation_status === 'confirmed' => 'success',
-                            $record->service_status === 'completed' => 'success',
-                            default => 'gray',
-                        };
-                    }),
-                TextColumn::make('payment_status')
-                    ->label('Payment')
-                    ->badge()
-                    ->formatStateUsing(fn (?string $state): string => $state ? ucfirst($state) : '—')
-                    ->color(fn (?string $state): string => match ($state) {
-                        'verified' => 'success',
-                        'rejected' => 'danger',
-                        'pending' => 'warning',
-                        default => 'gray',
-                    })
-                    ->visible(fn ($record) => $record?->service_fee_type === 'money'),
-                TextColumn::make('service_status')
-                    ->label('Service Status')
-                    ->badge()
-                    ->formatStateUsing(fn (string $state): string => $state === 'cancelled' ? 'Cancelled' : ucfirst($state))
-                    ->color(fn (string $state): string => match ($state) {
-                        'pending' => 'warning',
-                        'completed' => 'success',
-                        'cancelled' => 'danger',
-                        default => 'gray',
-                    }),
+                Panel::make([
+                    // Row 1: images (boar / sow) side by side
+                    Split::make([
+                        Stack::make([
+                            ImageColumn::make('boar.boar_picture')
+                                ->label('Boar Image')
+                                ->size(110)
+                                ->alignCenter()
+                                ->extraAttributes(['class' => 'rounded-lg shadow-sm'])
+                                ->defaultImageUrl(url('/img/no-image.svg')),
+                        ]),
+                        Stack::make([
+                            ImageColumn::make('female_pig_photo')
+                                ->label('Sow Image')
+                                ->size(110)
+                                ->alignCenter()
+                                ->extraAttributes(['class' => 'rounded-lg shadow-sm'])
+                                ->defaultImageUrl(url('/img/no-image.svg')),
+                        ]),
+                    ])
+                        ->extraAttributes(['class' => '!flex !flex-row !flex-nowrap gap-4']),
+
+                    // Row 2: names (boar / customer) + payment under customer
+                    Split::make([
+                        Stack::make([
+                            TextColumn::make('boar.boar_name')
+                                ->label('Boar')
+                                ->weight('bold')
+                                ->size('lg')
+                                ->alignCenter(),
+                        ]),
+                        Stack::make([
+                            TextColumn::make('user.name')
+                                ->label('Customer')
+                                ->weight('bold')
+                                ->size('lg')
+                                ->alignCenter()
+                                ->extraAttributes(['style' => 'margin-top: 32px;']),
+                            TextColumn::make('service_fee_type')
+                                ->label('Payment')
+                                ->formatStateUsing(function ($record) {
+                                    $label = 'Payment: ';
+                                    if ($record->service_fee_type === 'pig') {
+                                        $amount = (int) $record->service_fee_amount;
+                                        return $label . $amount . ' ' . ($amount === 1 ? 'Pig' : 'Pigs');
+                                    }
+
+                                    return $label . '₱' . number_format($record->service_fee_amount);
+                                })
+                                ->badge()
+                                ->color(fn ($record) => $record->service_fee_type === 'pig' ? 'warning' : 'success')
+                                ->alignCenter()
+                                ->extraAttributes(['class' => 'mt-3']),
+                        ]),
+                    ]),
+
+                    // Row 3: date & statuses
+                    Stack::make([
+                        TextColumn::make('service_date')
+                            ->label('Service Date')
+                            ->date()
+                            ->icon('heroicon-o-calendar'),
+                        TextColumn::make('reservation_status')
+                            ->label('Reservation Status')
+                            ->formatStateUsing(fn (string $state): string => 'Reservation: ' . match ($state) {
+                                'pending_boar_raiser' => 'Pending boar raiser',
+                                'confirmed' => 'Confirmed (paid)',
+                                default => ucfirst(str_replace('_', ' ', $state)),
+                            })
+                            ->badge()
+                            ->color(fn (string $state): string => match ($state) {
+                                'pending' => 'warning',
+                                'pending_boar_raiser' => 'info',
+                                'accepted' => 'success',
+                                'confirmed' => 'success',
+                                'rejected' => 'danger',
+                                default => 'gray',
+                            }),
+                        TextColumn::make('service_status')
+                            ->label('Service Status')
+                            ->formatStateUsing(fn ($record) => 'Service: ' . match (true) {
+                                $record->reservation_status === 'rejected' => 'Cancelled',
+                                $record->service_status === 'cancelled' => 'Cancelled',
+                                default => ucfirst($record->service_status),
+                            })
+                            ->badge()
+                            ->color(fn ($record) => match (true) {
+                                $record->reservation_status === 'rejected' => 'danger',
+                                $record->service_status === 'cancelled' => 'danger',
+                                $record->service_status === 'completed' => 'success',
+                                default => 'gray',
+                            }),
+                    ])->space(2),
+                ])
+                    ->extraAttributes(['class' => 'gap-4']),
             ])
             ->actions([
                 Tables\Actions\ViewAction::make()

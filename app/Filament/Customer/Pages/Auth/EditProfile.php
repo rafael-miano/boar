@@ -35,7 +35,8 @@ class EditProfile extends BaseEditProfile
                             ->maxSize(2048)
                             ->helperText('Upload a photo for your profile. Max 2MB.'),
                     ])
-                    ->columns(1),
+                    ->columns(1)
+                    ->extraAttributes(['class' => 'flex flex-col items-center md:items-start']),
 
                 $this->getNameFormComponent(),
                 $this->getEmailFormComponent(),

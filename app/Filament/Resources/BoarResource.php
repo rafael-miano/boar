@@ -179,88 +179,49 @@ class BoarResource extends Resource
         return $table
             ->columns([
                 ImageColumn::make('boar_picture')
-                    ->label('Boar Image')
-                    ->size(60)
+                    ->label('Boar')
+                    ->size(72)
                     ->square()
+                    ->alignCenter()
+                    ->extraAttributes(['class' => 'rounded-lg shadow-sm'])
                     ->defaultImageUrl(url('/img/no-image.svg')),
                 Tables\Columns\TextColumn::make('boar_name')
                     ->label('Boar Name')
-                    ->size(TextColumnSize::Small)
-                    ->searchable(),
+                    ->weight('bold')
+                    ->searchable()
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('boar_type')
                     ->label('Boar Type')
-                    ->size(TextColumnSize::Small)
-                    ->formatStateUsing(fn($state) => ucfirst($state))
+                    ->formatStateUsing(fn ($state) => ucfirst(str_replace('-', ' ', (string) $state)))
                     ->searchable(),
                 Tables\Columns\TextColumn::make('default_price_money')
                     ->label('Full Price')
                     ->formatStateUsing(fn ($state) => '₱' . number_format((int) ($state ?? 0)))
-                    ->size(TextColumnSize::Small)
                     ->sortable()
                     ->placeholder('—'),
                 Tables\Columns\TextColumn::make('breeding_maturity_date')
                     ->label('Maturity Date')
                     ->date(format: 'd-m-Y')
-                    ->size(TextColumnSize::Small)
-                    ->sortable(),
+                    ->sortable()
+                    ->icon('heroicon-o-calendar'),
                 Tables\Columns\TextColumn::make('health_status')
-                    ->label('Health Status')
+                    ->label('Health')
                     ->badge()
-                    ->size(TextColumnSize::Small)
                     ->colors([
                         'success' => 'healthy',
                         'danger' => 'sick',
                     ])
-                    ->formatStateUsing(fn($state) => ucfirst($state))
+                    ->formatStateUsing(fn ($state) => ucfirst((string) $state))
                     ->searchable(),
-
                 Tables\Columns\TextColumn::make('breeding_status')
-                    ->label('Breeding Status')
+                    ->label('Breeding')
                     ->badge()
-                    ->size(TextColumnSize::Small)
                     ->colors([
                         'success' => 'active',
                         'danger' => 'inactive',
                     ])
-                    ->formatStateUsing(fn($state) => ucfirst($state))
+                    ->formatStateUsing(fn ($state) => ucfirst((string) $state))
                     ->searchable(),
-
-                Tables\Columns\TextColumn::make('created_at')
-                    ->label('Date Added')
-                    ->date(format: 'd-m-Y')
-                    ->size(TextColumnSize::Small)
-                    ->sortable()
-                    ->placeholder('—')
-                    ->hidden(function ($livewire): bool {
-                        if (! $livewire instanceof Pages\ListBoars) {
-                            return false;
-                        }
-
-                        $activeTab = $livewire->activeTab ?? array_key_first($livewire->getTabs());
-
-                        return $activeTab === 'archived';
-                    }),
-                Tables\Columns\TextColumn::make('archived_at')
-                    ->label('Archived At')
-                    ->date(format: 'd-m-Y')
-                    ->placeholder('—')
-                    ->size(TextColumnSize::Small)
-                    ->sortable()
-                    ->hidden(function ($livewire): bool {
-                        if (! $livewire instanceof Pages\ListBoars) {
-                            return true;
-                        }
-
-                        $activeTab = $livewire->activeTab ?? array_key_first($livewire->getTabs());
-
-                        return $activeTab !== 'archived';
-                    }),
-                Tables\Columns\TextColumn::make('updated_at')
-                    ->label('Date Updated')
-                    ->date(format: 'd-m-Y')
-                    ->size(TextColumnSize::Small)
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\IconColumn::make('is_published')
                     ->label('Marketplace')
                     ->icon(function (Boar $record): string {
@@ -290,23 +251,6 @@ class BoarResource extends Resource
                         }
                         return 'Visible in marketplace';
                     }),
-                Tables\Columns\TextColumn::make('publish_status')
-                    ->label('Publish Status')
-                    ->badge()
-                    ->formatStateUsing(fn (?string $state): string => match ($state) {
-                        'pending_admin' => 'Pending admin approval',
-                        'approved' => 'Approved',
-                        'draft' => 'Draft',
-                        'rejected' => 'Rejected',
-                        default => $state ? ucfirst(str_replace('_', ' ', $state)) : 'Draft',
-                    })
-                    ->color(fn (?string $state): string => match ($state) {
-                        'pending_admin' => 'warning',
-                        'approved' => 'success',
-                        'rejected' => 'danger',
-                        default => 'gray',
-                    })
-                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 //

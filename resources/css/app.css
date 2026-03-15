@@ -9,3 +9,93 @@
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
 }
+
+/* Register page: responsive for mobile */
+@media (max-width: 768px) {
+    .fi-simple-page main,
+    .fi-wizard {
+        width: 100%;
+        max-width: 100%;
+        padding-left: 1rem;
+        padding-right: 1rem;
+        box-sizing: border-box;
+    }
+    .fi-wizard .fi-fo-field-wrp {
+        max-width: 100%;
+    }
+    .fi-wizard input,
+    .fi-wizard textarea,
+    .fi-wizard [data-slot="input"] {
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+    .fi-wizard .fi-fo-phone-input,
+    .fi-wizard .fi-fo-phone-input .tel-input {
+        width: 100% !important;
+        max-width: 100%;
+    }
+    .fi-wizard .fi-wi-steps {
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+}
+
+/* Edit Profile page (admin & customer): responsive for mobile */
+@media (max-width: 768px) {
+    .fi-simple-page main .fi-section,
+    .fi-simple-page main .fi-fo-field-wrp {
+        max-width: 100%;
+    }
+    .fi-simple-page main input,
+    .fi-simple-page main textarea,
+    .fi-simple-page main [data-slot="input"] {
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+    .fi-simple-page main .fi-fo-file-upload {
+        width: 100%;
+        max-width: 100%;
+    }
+    .fi-simple-page main .fi-section-content {
+        padding-left: 0;
+        padding-right: 0;
+    }
+}
+
+/* Request Reservation modal: responsive for mobile */
+@media (max-width: 768px) {
+    .fi-modal-window {
+        max-width: calc(100vw - 2rem);
+        width: 100%;
+        margin: 1rem;
+    }
+    .fi-modal-window .fi-wizard,
+    .fi-modal-window .fi-fo-field-wrp {
+        max-width: 100%;
+    }
+    .fi-modal-window input,
+    .fi-modal-window textarea,
+    .fi-modal-window [data-slot="input"] {
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+    .fi-modal-window .fi-wi-steps {
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+}
+
+/* Customer Boar Reservations: card layout on mobile */
+@media (max-width: 768px) {
+    .fi-ta-content {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    .fi-ta-content .fi-ta-panel {
+        width: 100%;
+        min-width: 0;
+    }
+}

@@ -54,6 +54,16 @@
                             <option value="other">Other</option>
                         </x-filament::input.select>
                     </x-filament::input.wrapper>
+                    <x-filament::input.wrapper class="w-full sm:w-48">
+                        <x-filament::input.select class="w-full" wire:model.live="stars">
+                            <option value="">All ratings</option>
+                            <option value="5">5 Stars</option>
+                            <option value="4">4 Stars</option>
+                            <option value="3">3 Stars</option>
+                            <option value="2">2 Stars</option>
+                            <option value="1">1 Star</option>
+                        </x-filament::input.select>
+                    </x-filament::input.wrapper>
                 </div>
             </div>
         </x-filament::section>
@@ -89,30 +99,24 @@
                             </x-filament::badge>
                         </div>
 
-                        {{-- Star Rating --}}
+                        {{-- Rating: 1 star + number; link to view reviews when present --}}
                         @php
                             $avg   = round($boar->ratings_avg_rating ?? 0, 1);
                             $count = (int) ($boar->ratings_count ?? 0);
-                            $full  = (int) floor($avg);
-                            $half  = ($avg - $full) >= 0.5;
                         @endphp
-                        <div class="flex items-center gap-1 mb-1">
-                            @for ($i = 1; $i <= 5; $i++)
-                                @if ($i <= $full)
-                                    <span class="text-yellow-400 text-sm">★</span>
-                                @elseif ($i == $full + 1 && $half)
-                                    <span class="text-yellow-400 text-sm">½</span>
-                                @else
-                                    <span class="text-gray-300 dark:text-gray-600 text-sm">★</span>
-                                @endif
-                            @endfor
-                            <span class="text-xs text-gray-500 dark:text-gray-400 ml-1">
-                                @if ($count > 0)
+                        <div class="flex items-center gap-1.5 mb-1">
+                            <span class="text-sm shrink-0" style="color: #eab308 !important;">★</span>
+                            @if ($count > 0)
+                                <button
+                                    type="button"
+                                    wire:click="openReviewsModal({{ $boar->id }})"
+                                    class="text-xs text-primary-600 dark:text-primary-400 hover:underline focus:outline-none focus:ring-0"
+                                >
                                     {{ $avg }} ({{ $count }} {{ $count === 1 ? 'review' : 'reviews' }})
-                                @else
-                                    No ratings yet
-                                @endif
-                            </span>
+                                </button>
+                            @else
+                                <span class="text-xs text-gray-600 dark:text-gray-400">No ratings yet</span>
+                            @endif
                         </div>
 
                         <div class="mt-3 space-y-3 text-xs md:text-sm text-gray-700 dark:text-gray-300 flex-grow">
@@ -177,4 +181,49 @@
         </x-filament::grid>
     </div>
 
+    {{-- Reviews modal --}}
+    @if($showReviewsModal)
+        <div class="fixed inset-0 z-40 flex items-center justify-center p-4">
+            <div
+                class="absolute inset-0 bg-gray-950/50 dark:bg-gray-950/75"
+                wire:click="closeReviewsModal"
+            ></div>
+            <div class="fi-modal-window pointer-events-auto relative z-50 flex max-h-[90vh] w-full max-w-lg cursor-default flex-col rounded-xl bg-white shadow-xl ring-1 ring-gray-950/5 dark:bg-gray-900 dark:ring-white/10 overflow-hidden">
+            <div class="fi-modal-header flex px-6 pt-6">
+                <h2 class="text-lg font-semibold text-gray-950 dark:text-white">
+                    Reviews — {{ $reviewsModalBoarName }}
+                </h2>
+                <button
+                    type="button"
+                    wire:click="closeReviewsModal"
+                    class="fi-modal-close-btn ms-auto rounded-lg p-2 text-gray-500 hover:bg-gray-100 hover:text-gray-700 dark:hover:bg-gray-800 dark:hover:text-gray-300"
+                >
+                    <x-heroicon-o-x-mark class="w-5 h-5" />
+                </button>
+            </div>
+            <div class="fi-modal-content flex flex-col overflow-y-auto px-6 pb-6">
+                @php $reviews = $reviewsModalReviews ?? collect(); @endphp
+                @forelse($reviews as $review)
+                    <div class="border-b border-gray-200 dark:border-gray-700 py-4 first:pt-0 last:border-0">
+                        <div class="flex flex-wrap items-center gap-x-2 gap-y-1 mb-1">
+                            <span class="text-sm font-medium shrink-0" style="color: #eab308 !important;">★</span>
+                            <span class="text-sm font-semibold text-gray-900 dark:text-white">{{ $review->rating }}/5</span>
+                            <span class="text-xs font-medium text-gray-700 dark:text-gray-300">
+                                {{ $review->customer?->name ?? 'Customer' }}
+                            </span>
+                            <span class="text-xs text-gray-500 dark:text-gray-400">
+                                {{ $review->created_at?->format('M j, Y \a\t g:i A') }}
+                            </span>
+                        </div>
+                        @if(!empty($review->comment))
+                            <p class="text-sm text-gray-700 dark:text-gray-300 mt-1">{{ $review->comment }}</p>
+                        @endif
+                    </div>
+                @empty
+                    <p class="text-sm text-gray-500 dark:text-gray-400 py-4">No reviews yet.</p>
+                @endforelse
+            </div>
+            </div>
+        </div>
+    @endif
 </x-filament-panels::page>

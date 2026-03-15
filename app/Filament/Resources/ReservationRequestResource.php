@@ -105,7 +105,7 @@ class ReservationRequestResource extends Resource
             ])
             ->columns([
                 Tables\Columns\Layout\Panel::make([
-                    // Row 1: images (boar / sow)
+                    // Row 1: images (boar / sow) side by side
                     Tables\Columns\Layout\Split::make([
                         Tables\Columns\Layout\Stack::make([
                             ImageColumn::make('boar.boar_picture')
@@ -123,7 +123,8 @@ class ReservationRequestResource extends Resource
                                 ->extraAttributes(['class' => 'rounded-lg shadow-sm'])
                                 ->defaultImageUrl(url('/img/no-image.svg')),
                         ]),
-                    ])->from('md'),
+                    ])
+                        ->extraAttributes(['class' => '!flex !flex-row !flex-nowrap gap-4']),
 
                     // Row 2: names (boar / customer) + payment under customer
                     Tables\Columns\Layout\Split::make([

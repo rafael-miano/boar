@@ -232,6 +232,7 @@ class StudServiceResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('boar.boar_name')
                     ->label('Boar Name')
+                    ->weight('bold')
                     ->searchable()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('client_name')
@@ -240,15 +241,17 @@ class StudServiceResource extends Resource
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('Requested At')
                     ->dateTime('F j, Y, g:i A')
-                    ->sortable(),
+                    ->sortable()
+                    ->icon('heroicon-o-calendar'),
                 Tables\Columns\TextColumn::make('service_fee_type')
                     ->label('Service Fee Type')
-                    ->formatStateUsing(fn(string $state) => ucfirst($state))
+                    ->formatStateUsing(fn (string $state) => ucfirst($state))
                     ->searchable(),
                 Tables\Columns\TextColumn::make('service_fee_amount')
                     ->label('Service Fee Amount')
                     ->numeric()
-                    ->sortable(),
+                    ->sortable()
+                    ->placeholder('—'),
                 Tables\Columns\TextColumn::make('service_status')
                     ->label('Service Status')
                     ->badge()
@@ -257,10 +260,10 @@ class StudServiceResource extends Resource
                         'success' => 'completed',
                         'danger' => 'cancelled',
                     ])
-                    ->formatStateUsing(fn(string $state) => ucfirst($state))
+                    ->formatStateUsing(fn (string $state) => ucfirst($state))
                     ->searchable(),
                 Tables\Columns\TextColumn::make('boarReservation.payment_status')
-                    ->label('Payment Status')
+                    ->label('Payment')
                     ->badge()
                     ->formatStateUsing(fn (?string $state): string => $state ? ucfirst($state) : '—')
                     ->color(fn (?string $state): string => match ($state) {
@@ -268,10 +271,9 @@ class StudServiceResource extends Resource
                         'rejected' => 'danger',
                         'pending' => 'warning',
                         default => 'gray',
-                    })
-                    ->toggleable(),
+                    }),
                 Tables\Columns\TextColumn::make('boarReservation.reservation_status')
-                    ->label('Reservation Status')
+                    ->label('Reservation')
                     ->badge()
                     ->formatStateUsing(fn (?string $state): string => match ($state) {
                         'pending_boar_raiser' => 'Pending boar raiser',
@@ -285,26 +287,17 @@ class StudServiceResource extends Resource
                         'confirmed' => 'success',
                         'rejected' => 'danger',
                         default => 'gray',
-                    })
-                    ->toggleable(),
-                Tables\Columns\TextColumn::make('created_at')
-                    ->label('Date Added')
-                    ->dateTime('F j, Y')
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('updated_at')
-                    ->label('Date Updated')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    }),
             ])
             ->filters([
                 //
             ])
             ->recordUrl(fn(StudService $record) => static::getUrl('edit', ['record' => $record]))
             ->actions([
-                Tables\Actions\ViewAction::make(),
-                Tables\Actions\EditAction::make(),
+                Tables\Actions\ActionGroup::make([
+                    Tables\Actions\ViewAction::make(),
+                    Tables\Actions\EditAction::make(),
+                ]),
             ])
             ->bulkActions([
                 // Tables\Actions\BulkActionGroup::make([

@@ -3,6 +3,7 @@
 namespace App\Filament\Customer\Pages;
 
 use App\Models\Boar;
+use App\Models\BoarRating;
 use App\Models\BoarReservation;
 use App\Models\User;
 use App\Notifications\BoarReservationRequested;
@@ -56,6 +57,15 @@ class CustomerDashboard extends Page
 
     public string $search = '';
     public string $type = '';
+    /** Minimum star rating filter (1–5). Empty = all. */
+    public string $stars = '';
+
+    /** Reviews modal state */
+    public bool $showReviewsModal = false;
+    public ?int $reviewsModalBoarId = null;
+    public string $reviewsModalBoarName = '';
+    /** @var \Illuminate\Database\Eloquent\Collection<int, BoarRating> */
+    public $reviewsModalReviews;
 
     public static function canAccess(): bool
     {
@@ -89,7 +99,41 @@ class CustomerDashboard extends Page
             $query->where('boar_type', $this->type);
         }
 
+        if ($this->stars !== '') {
+            $bucket = (int) $this->stars;
+            if ($bucket >= 1 && $bucket <= 5) {
+                $min = (float) $bucket;
+                $max = $bucket < 5 ? $bucket + 0.9 : 5.0;
+                $query->having('ratings_avg_rating', '>=', $min)
+                    ->having('ratings_avg_rating', '<=', $max);
+            }
+        }
+
         return $query->latest()->get();
+    }
+
+    public function openReviewsModal(int $boarId): void
+    {
+        $boar = Boar::find($boarId);
+        if (!$boar) {
+            return;
+        }
+        $this->reviewsModalBoarId = $boarId;
+        $this->reviewsModalBoarName = $boar->boar_name;
+        $this->reviewsModalReviews = BoarRating::query()
+            ->where('boar_id', $boarId)
+            ->with('customer:id,name')
+            ->orderByDesc('created_at')
+            ->get();
+        $this->showReviewsModal = true;
+    }
+
+    public function closeReviewsModal(): void
+    {
+        $this->showReviewsModal = false;
+        $this->reviewsModalBoarId = null;
+        $this->reviewsModalBoarName = '';
+        $this->reviewsModalReviews = collect();
     }
 
     #[Computed]
@@ -117,9 +161,8 @@ class CustomerDashboard extends Page
                     Wizard\Step::make('Boar Information')
                         ->description('Review selected boar')
                         ->schema([
-                            \Filament\Forms\Components\Grid::make(2)
+                            \Filament\Forms\Components\Grid::make(['default' => 1, 'md' => 2])
                                 ->schema([
-                                    // Left Column - Selected Boar
                                     ViewField::make('selected_boar_info')
                                         ->view('filament.forms.components.selected-boar-info')
                                         ->viewData([
@@ -131,7 +174,7 @@ class CustomerDashboard extends Page
                                             'boarAddress' => $this->boarAddress,
                                             'boarImage' => $this->boarImage,
                                         ])
-                                        ->columnSpan(1),
+                                        ->columnSpan(['default' => 1, 'md' => 1]),
 
                                     Section::make('Boar Information')
                                         ->schema([
@@ -141,31 +184,25 @@ class CustomerDashboard extends Page
                                             Placeholder::make('boar_type_display')
                                                 ->label('Boar Type')
                                                 ->content(fn() => $this->boarType ?? 'N/A'),
-                                            // Placeholder::make('breeder_name_display')
-                                            //     ->label('Breeder')
-                                            //     ->content(fn() => $this->breederName ?? 'N/A'),
-                                            // Placeholder::make('breeder_phone_display')
-                                            //     ->label('Boar raiser number')
-                                            //     ->content(fn() => $this->breederPhone ?? 'N/A'),
                                             Placeholder::make('boar_location_display')
                                                 ->label('Boar Location')
                                                 ->content(fn() => $this->boarAddress ?? 'N/A'),
                                         ])
                                         ->columns(1)
-                                        ->columnSpan(1),
+                                        ->columnSpan(['default' => 1, 'md' => 1]),
                                 ])
-                                ->columns(2),
+                                ->columns(['default' => 1, 'md' => 2]),
                         ]),
                     Wizard\Step::make('Service Details')
                         ->description('Set up your reservation request')
                         ->schema([
-                            \Filament\Forms\Components\Grid::make(3)
+                            \Filament\Forms\Components\Grid::make(['default' => 1, 'md' => 3])
                                 ->schema([
                                     DatePicker::make('service_date')
                                         ->label('Preferred Service Date')
                                         ->required()
                                         ->minDate(now())
-                                        ->columnSpan(1),
+                                        ->columnSpan(['default' => 1, 'md' => 1]),
 
                                     Radio::make('service_fee_type')
                                         ->label('Service Fee Type')
@@ -180,7 +217,7 @@ class CustomerDashboard extends Page
                                         ->afterStateUpdated(function ($state, Set $set): void {
                                             $set('service_fee_amount', $state === 'pig' ? $this->defaultPayWithPigs : $this->defaultDownpayment);
                                         })
-                                        ->columnSpan(1),
+                                        ->columnSpan(['default' => 1, 'md' => 1]),
 
                                     TextInput::make('service_fee_amount')
                                         ->label(fn (Get $get) => $get('service_fee_type') === 'money' ? 'Downpayment 50% of the full price' : 'Service Fee Amount')
@@ -190,21 +227,21 @@ class CustomerDashboard extends Page
                                         ->dehydrated()
                                         ->prefix(fn(Get $get) => $get('service_fee_type') === 'money' ? '₱' : null)
                                         ->suffix(fn(Get $get) => $get('service_fee_type') === 'pig' ? 'pig(s)' : null)
-                                        ->columnSpan(1),
+                                        ->columnSpan(['default' => 1, 'md' => 1]),
 
                                     Placeholder::make('downpayment_info')
                                         ->label('')
                                         ->content(new HtmlString('<p class="text-sm text-gray-500 dark:text-gray-400">You will be notified once the boar owner approves your reservation. After approval, the QR code for the down payment will be displayed, allowing you to proceed with the payment.</p>'))
                                         ->visible(fn (Get $get) => $get('service_fee_type') === 'money')
-                                        ->columnSpan(3),
+                                        ->columnSpan(['default' => 1, 'md' => 3]),
 
-                                    \Filament\Forms\Components\Grid::make(3)
+                                    \Filament\Forms\Components\Grid::make(['default' => 1, 'md' => 3])
                                         ->schema([
                                             TextInput::make('contact_number')
                                                 ->label('Your contact number')
                                                 ->default(fn () => auth()->user()?->phone_number ?? '')
                                                 ->placeholder('e.g. 09xxxxxxxxx')
-                                                ->columnSpan(2),
+                                                ->columnSpan(['default' => 1, 'md' => 2]),
                                             \Filament\Forms\Components\Actions::make([
                                                 \Filament\Forms\Components\Actions\Action::make('saveContactNumber')
                                                     ->label('Update contact number')
@@ -219,12 +256,12 @@ class CustomerDashboard extends Page
                                                     }),
                                             ])
                                             ->verticallyAlignEnd()
-                                            ->columnSpan(1),
+                                            ->columnSpan(['default' => 1, 'md' => 1]),
                                         ])
-                                        ->columnSpan(3),
+                                        ->columnSpan(['default' => 1, 'md' => 3]),
                                 ]),
 
-                            \Filament\Forms\Components\Grid::make(2)
+                            \Filament\Forms\Components\Grid::make(['default' => 1, 'md' => 2])
                                 ->schema([
                                     FileUpload::make('female_pig_photo')
                                         ->label('Photo of Your Female Pig')
@@ -233,7 +270,7 @@ class CustomerDashboard extends Page
                                         ->directory('female-pig-photos')
                                         ->visibility('private')
                                         ->helperText('Upload a clear photo of the female pig you want to breed')
-                                        ->columnSpan(1),
+                                        ->columnSpan(['default' => 1, 'md' => 1]),
 
                                     Textarea::make('notes')
                                         ->label('Additional Notes')
@@ -255,8 +292,9 @@ class CustomerDashboard extends Page
                                                 $set('notes', $sanitized);
                                             }
                                         })
-                                        ->columnSpan(1),
-                                ]),
+                                        ->columnSpan(['default' => 1, 'md' => 1]),
+                                ])
+                                ->columns(['default' => 1, 'md' => 2]),
                         ]),
                 ])
                     ->submitAction(new HtmlString(Blade::render(<<<'BLADE'
