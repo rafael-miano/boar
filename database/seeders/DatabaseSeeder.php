@@ -18,20 +18,25 @@ class DatabaseSeeder extends Seeder
         User::factory()->create([
             'name' => 'Admin',
             'email' => 'admin@a.com',
-            'role' => 'admin'
+            'role' => 'admin',
+            'phone_number' => '09171234567',
+            'address' => 'Santa Cruz (Poblacion), Calape, Bohol, Philippines',
         ]);
-
 
         User::factory()->create([
             'name' => 'Boar Raiser',
             'email' => 'boar-raiser@a.com',
-            'role' => 'boar-raiser'
+            'role' => 'boar-raiser',
+            'phone_number' => '09181234567',
+            'address' => 'Desamparados (Poblacion), Calape, Bohol, Philippines',
         ]);
 
         User::factory()->create([
             'name' => 'Customer',
             'email' => 'customer@a.com',
-            'role' => 'customer'
+            'role' => 'customer',
+            'phone_number' => '09191234567',
+            'address' => 'Lo-oc, Calape, Bohol, Philippines',
         ]);
 
         User::factory()->create([
@@ -39,6 +44,11 @@ class DatabaseSeeder extends Seeder
             'email' => 'customer2@a.com',
             'role' => 'customer',
             'email_verified_at' => null,
+            'phone_number' => '09201234567',
+            'address' => 'Mantatao, Calape, Bohol, Philippines',
         ]);
+
+        User::factory(50)->create(['role' => 'boar-raiser']);
+        User::factory(50)->create(['role' => 'customer']);
     }
 }
