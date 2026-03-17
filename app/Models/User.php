@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Filament\Panel;
+use Illuminate\Support\Str;
 
 class User extends Authenticatable implements FilamentUser, HasAvatar, MustVerifyEmail
 {
@@ -67,8 +68,10 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, MustVerif
     {
         if (!empty($this->profile_picture)) {
 
-            if (!str_starts_with($this->profile_picture, 'http')) {
-                return asset('storage/' . ltrim($this->profile_picture, '/'));
+            if (!Str::startsWith($this->profile_picture, ['http://', 'https://'])) {
+                // Use a domain-agnostic absolute path so a misconfigured APP_URL
+                // doesn't break avatars when deployed under a different domain.
+                return '/storage/' . ltrim($this->profile_picture, '/');
             }
             return $this->profile_picture;
         }
