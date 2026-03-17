@@ -15,6 +15,7 @@ use Filament\Forms\Form;
 use Filament\Notifications\Notification as FilamentNotification;
 use Filament\Notifications\Actions\Action as NotificationAction;
 use Filament\Pages\Auth\Register as BaseRegister;
+use Filament\Http\Responses\Auth\Contracts\RegistrationResponse;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\HtmlString;
 use Ysfkaya\FilamentPhoneInput\Forms\PhoneInput;
@@ -68,7 +69,7 @@ class Register extends BaseRegister
                             Grid::make()
                                 ->columns([
                                     'default' => 1,
-                                    'md' => 4,
+                                    'lg' => 4,
                                 ])
                                 ->schema([
                                     Group::make()
@@ -83,11 +84,11 @@ class Register extends BaseRegister
                                                 ->disk('public')
                                                 ->directory('profile-pictures')
                                                 ->visibility('public')
-                                                ->extraAttributes(['class' => 'mx-auto']),
+                                                ->extraAttributes(['class' => 'block mx-auto']),
                                         ])
                                         ->columnSpan([
                                             'default' => 1,
-                                            'md' => 1,
+                                            'lg' => 1,
                                         ]),
 
                                     Group::make()
@@ -98,7 +99,7 @@ class Register extends BaseRegister
                                         ])
                                         ->columnSpan([
                                             'default' => 1,
-                                            'md' => 3,
+                                            'lg' => 3,
                                         ]),
                                 ]),
                         ]),
@@ -269,5 +270,14 @@ class Register extends BaseRegister
     protected function getFormActions(): array
     {
         return [];
+    }
+
+    public function register(): ?RegistrationResponse
+    {
+        $response = parent::register();
+
+        $this->dispatch('sessionRegenerated', csrf_token());
+
+        return $response;
     }
 }
