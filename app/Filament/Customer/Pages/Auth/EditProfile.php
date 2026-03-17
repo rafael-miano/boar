@@ -26,8 +26,20 @@ class EditProfile extends BaseEditProfile
                             ->image()
                             ->avatar()
                             ->disk('public')
-                            ->getUploadedFileUrlUsing(function (?string $file): ?string {
-                                if (! $file) {
+                            ->getUploadedFileUrlUsing(function ($file): ?string {
+                                if (blank($file)) {
+                                    return null;
+                                }
+
+                                if (is_object($file) && method_exists($file, 'getClientOriginalName')) {
+                                    return null;
+                                }
+
+                                if (is_array($file)) {
+                                    $file = reset($file) ?: null;
+                                }
+
+                                if (! is_string($file) || $file === '') {
                                     return null;
                                 }
 
