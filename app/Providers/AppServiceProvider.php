@@ -4,7 +4,9 @@ namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use App\Http\Responses\LogoutResponse;
+use Filament\Support\Assets\Js;
 use Filament\Support\Facades\FilamentIcon;
+use Filament\Support\Facades\FilamentAsset;
 use Filament\Http\Responses\Auth\Contracts\RegistrationResponse as RegistrationResponseContract;
 use Filament\Support\Colors\Color;
 use Filament\Support\Facades\FilamentColor;
@@ -34,6 +36,10 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $isRtl = __('filament-panels::layout.direction') === 'rtl';
+
+        FilamentAsset::register([
+            Js::make('csrf-sync', resource_path('filament/csrf-sync.js')),
+        ], 'app');
 
         FilamentIcon::register([
             'panels::sidebar.collapse-button' => $isRtl ? 'ri-arrow-left-double-fill' : 'ri-arrow-left-double-fill',
