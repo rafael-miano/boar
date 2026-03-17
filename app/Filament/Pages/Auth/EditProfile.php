@@ -45,28 +45,32 @@ class EditProfile extends BaseEditProfile
                                 ->avatar()
                                 ->disk('public')
                                 ->getUploadedFileUrlUsing(function ($file): ?string {
-                                    if (blank($file)) {
+                                    try {
+                                        if ($file === null || $file === '' || $file === false) {
+                                            return null;
+                                        }
+
+                                        // When editing, Filament may pass a stored path (string) or a temporary upload object.
+                                        if (is_object($file) && method_exists($file, 'getClientOriginalName')) {
+                                            return null;
+                                        }
+
+                                        if (is_array($file)) {
+                                            $file = reset($file) ?: null;
+                                        }
+
+                                        if (! is_string($file) || $file === '') {
+                                            return null;
+                                        }
+
+                                        $file = preg_replace('#^https?://[^/]+#', '', $file);
+                                        $file = preg_replace('#^/?storage/#', '', $file);
+                                        $file = ltrim($file, '/');
+
+                                        return route('media.public', ['path' => $file]);
+                                    } catch (\Throwable $e) {
                                         return null;
                                     }
-
-                                    // When editing, Filament may pass a stored path (string) or a temporary upload object.
-                                    if (is_object($file) && method_exists($file, 'getClientOriginalName')) {
-                                        return null;
-                                    }
-
-                                    if (is_array($file)) {
-                                        $file = reset($file) ?: null;
-                                    }
-
-                                    if (! is_string($file) || $file === '') {
-                                        return null;
-                                    }
-
-                                    $file = preg_replace('#^https?://[^/]+#', '', $file);
-                                    $file = preg_replace('#^/?storage/#', '', $file);
-                                    $file = ltrim($file, '/');
-
-                                    return route('media.public', ['path' => $file]);
                                 })
                                 ->imageResizeMode('cover')
                                 ->imageCropAspectRatio('1:1')
