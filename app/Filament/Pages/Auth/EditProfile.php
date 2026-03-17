@@ -14,7 +14,6 @@ use Filament\Notifications\Notification as FilamentNotification;
 use Filament\Pages\Auth\EditProfile as BaseEditProfile;
 use Filament\Forms\Form;
 use Illuminate\Support\HtmlString;
-use Illuminate\Support\Str;
 
 class EditProfile extends BaseEditProfile
 {
@@ -45,19 +44,6 @@ class EditProfile extends BaseEditProfile
                                 ->image()
                                 ->avatar()
                                 ->disk('public')
-                                ->formatStateUsing(function ($state) {
-                                    if (! is_string($state) || $state === '') {
-                                        return $state;
-                                    }
-
-                                    // Normalize legacy values so Filament can locate the file on the `public` disk.
-                                    // Accepts: "profile-pictures/x.jpg", "/profile-pictures/x.jpg", "/storage/profile-pictures/x.jpg",
-                                    // or "https://domain.tld/storage/profile-pictures/x.jpg".
-                                    $state = preg_replace('#^https?://[^/]+#', '', $state);
-                                    $state = preg_replace('#^/?storage/#', '', $state);
-
-                                    return ltrim($state, '/');
-                                })
                                 ->imageResizeMode('cover')
                                 ->imageCropAspectRatio('1:1')
                                 ->imageResizeTargetWidth('400')
