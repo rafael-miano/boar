@@ -65,11 +65,11 @@ class Register extends BaseRegister
                     ->schema([
 
                         Step::make('Personal Info')->schema([
-                            Grid::make([
-                                'default' => 4,
-                                1 => 1,
-                                2 => 3,
-                            ])
+                            Grid::make()
+                                ->columns([
+                                    'default' => 1,
+                                    'md' => 4,
+                                ])
                                 ->schema([
                                     Group::make()
                                         ->schema([
@@ -83,9 +83,12 @@ class Register extends BaseRegister
                                                 ->disk('public')
                                                 ->directory('profile-pictures')
                                                 ->visibility('public')
-                                                ->extraAttributes(['class' => 'block mx-auto']),
+                                                ->extraAttributes(['class' => 'mx-auto']),
                                         ])
-                                        ->columnSpan(1),
+                                        ->columnSpan([
+                                            'default' => 1,
+                                            'md' => 1,
+                                        ]),
 
                                     Group::make()
                                         ->schema([
@@ -93,7 +96,10 @@ class Register extends BaseRegister
                                             $this->getEmailFormComponent(),
                                             $this->getRoleFormComponent(),
                                         ])
-                                        ->columnSpan(3),
+                                        ->columnSpan([
+                                            'default' => 1,
+                                            'md' => 3,
+                                        ]),
                                 ]),
                         ]),
 
