@@ -65,7 +65,11 @@ class Register extends BaseRegister
                     ->schema([
 
                         Step::make('Personal Info')->schema([
-                            Grid::make(['default' => 1, 'md' => 4])
+                            Grid::make([
+                                'default' => 4,
+                                1 => 1,
+                                2 => 3,
+                            ])
                                 ->schema([
                                     Group::make()
                                         ->schema([
@@ -81,7 +85,7 @@ class Register extends BaseRegister
                                                 ->visibility('public')
                                                 ->extraAttributes(['class' => 'block mx-auto']),
                                         ])
-                                        ->columnSpan(['default' => 1, 'md' => 1]),
+                                        ->columnSpan(1),
 
                                     Group::make()
                                         ->schema([
@@ -89,19 +93,17 @@ class Register extends BaseRegister
                                             $this->getEmailFormComponent(),
                                             $this->getRoleFormComponent(),
                                         ])
-                                        ->columnSpan(['default' => 1, 'md' => 3]),
+                                        ->columnSpan(3),
                                 ]),
                         ]),
 
                         Step::make('Contact Details')->schema([
-                            Grid::make(['default' => 1, 'md' => 4])
+                            Grid::make(4)
                                 ->schema([
-                                    Group::make()
-                                        ->columnSpan(1)
-                                        ->extraAttributes(['class' => 'hidden md:block']),
+                                    Group::make()->columnSpan(1),
 
                                     Group::make()
-                                        ->columnSpan(['default' => 1, 'md' => 2])
+                                        ->columnSpan(2)
                                         ->schema([
                                             PhoneInput::make('phone_number')
                                                 ->label('Phone Number')
@@ -120,44 +122,36 @@ class Register extends BaseRegister
                                                 ->required(),
                                         ]),
 
-                                    Group::make()
-                                        ->columnSpan(1)
-                                        ->extraAttributes(['class' => 'hidden md:block']),
+                                    Group::make()->columnSpan(1),
                                 ]),
                         ]),
 
 
                         Step::make('Password')->schema([
-                            Grid::make(['default' => 1, 'md' => 4])
+                            Grid::make(4)
                                 ->schema([
-                                    Group::make()
-                                        ->columnSpan(1)
-                                        ->extraAttributes(['class' => 'hidden md:block']),
+                                    Group::make()->columnSpan(1),
 
                                     Group::make()
-                                        ->columnSpan(['default' => 1, 'md' => 2])
+                                        ->columnSpan(2)
                                         ->schema([
                                             $this->getPasswordFormComponent(),
                                             $this->getPasswordConfirmationFormComponent(),
                                         ]),
 
-                                    Group::make()
-                                        ->columnSpan(1)
-                                        ->extraAttributes(['class' => 'hidden md:block']),
+                                    Group::make()->columnSpan(1),
                                 ]),
                         ]),
 
                         Step::make('ID Verification')
                             ->description('Upload a valid ID')
                             ->schema([
-                                Grid::make(['default' => 1, 'md' => 4])
+                                Grid::make(4)
                                     ->schema([
-                                        Group::make()
-                                            ->columnSpan(1)
-                                            ->extraAttributes(['class' => 'hidden md:block']),
+                                        Group::make()->columnSpan(1),
 
                                         Group::make()
-                                            ->columnSpan(['default' => 1, 'md' => 2])
+                                            ->columnSpan(2)
                                             ->schema([
                                                 \Filament\Forms\Components\Actions::make([
                                                     \Filament\Forms\Components\Actions\Action::make('viewValidIds')
@@ -199,20 +193,18 @@ class Register extends BaseRegister
                                                     ->required(),
                                             ]),
 
-                                        Group::make()
-                                            ->columnSpan(1)
-                                            ->extraAttributes(['class' => 'hidden md:block']),
+                                        Group::make()->columnSpan(1),
                                     ]),
                             ]),
 
 
 
                     ])
-                    ->submitAction(new HtmlString(Blade::render(<<<'BLADE'
-                        <x-filament::button type="submit" size="sm" wire:submit="register">
-                            Register
-                        </x-filament::button>
-                    BLADE))),
+                    ->submitAction(
+                        \Filament\Forms\Components\Actions\Action::make('register')
+                            ->label('Register')
+                            ->submit('register')
+                    ),
             ])
             ->statePath('data');
     }

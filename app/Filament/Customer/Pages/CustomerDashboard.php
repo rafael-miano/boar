@@ -298,8 +298,23 @@ class CustomerDashboard extends Page
                         ]),
                 ])
                     ->submitAction(new HtmlString(Blade::render(<<<'BLADE'
-                    <x-filament::button type="submit" size="sm" color="success">
-                        Submit Request
+                    <x-filament::button
+                        type="submit"
+                        size="sm"
+                        color="success"
+                        wire:loading.attr="disabled"
+                        class="inline-flex items-center gap-2"
+                        x-data="{ loading: false }"
+                        x-on:click="loading = true"
+                    >
+                        <span x-show="loading" class="inline-flex items-center gap-2" x-cloak>
+                            <x-filament::loading-indicator class="h-4 w-4" />
+                            <span>Submitting...</span>
+                        </span>
+
+                        <span x-show="!loading">
+                            Submit Request
+                        </span>
                     </x-filament::button>
                 BLADE)))
             ])
