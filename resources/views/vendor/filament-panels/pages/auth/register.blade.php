@@ -19,5 +19,17 @@
     </x-filament-panels::form>
 
     {{ \Filament\Support\Facades\FilamentView::renderHook(\Filament\View\PanelsRenderHook::AUTH_REGISTER_FORM_AFTER, scopes: $this->getRenderHookScopes()) }}
+
+    @push('scripts')
+        <script>
+            document.addEventListener('livewire:init', () => {
+                Livewire.on('sessionRegenerated', (csrfToken) => {
+                    document.head
+                        .querySelector('meta[name="csrf-token"]')
+                        .setAttribute('content', csrfToken);
+                });
+            });
+        </script>
+    @endpush
 </x-filament-panels::page.simple>
 
