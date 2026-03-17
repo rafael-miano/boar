@@ -6,12 +6,31 @@ use Illuminate\Auth\Events\Verified;
 use Filament\Facades\Filament;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 
 Route::get('/', function () {
     return view('home');
 });
+
+// Serve public-disk files even when /public/storage symlink isn't available on the host.
+Route::get('/media/public/{path}', function (string $path) {
+    if (Str::contains($path, '..')) {
+        abort(404);
+    }
+
+    $path = ltrim($path, '/');
+
+    if (! Storage::disk('public')->exists($path)) {
+        abort(404);
+    }
+
+    return Storage::disk('public')->response($path);
+})
+    ->where('path', '.*')
+    ->name('media.public');
 
 // Customer profile – must be registered early so it isn’t caught by Filament’s SPA catch-all
 Route::get('/customer/profile', function () {

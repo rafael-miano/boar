@@ -69,9 +69,7 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, MustVerif
         if (!empty($this->profile_picture)) {
 
             if (!Str::startsWith($this->profile_picture, ['http://', 'https://'])) {
-                // Use a domain-agnostic absolute path so a misconfigured APP_URL
-                // doesn't break avatars when deployed under a different domain.
-                return '/storage/' . ltrim($this->profile_picture, '/');
+                return route('media.public', ['path' => ltrim($this->profile_picture, '/')]);
             }
             return $this->profile_picture;
         }
