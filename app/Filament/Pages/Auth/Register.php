@@ -3,6 +3,7 @@
 namespace App\Filament\Pages\Auth;
 
 use App\Models\User;
+use DanHarrin\LivewireRateLimiting\Exceptions\TooManyRequestsException;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Group;
@@ -12,10 +13,10 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Wizard;
 use Filament\Forms\Components\Wizard\Step;
 use Filament\Forms\Form;
+use Filament\Http\Responses\Auth\Contracts\RegistrationResponse;
 use Filament\Notifications\Notification as FilamentNotification;
 use Filament\Notifications\Actions\Action as NotificationAction;
 use Filament\Pages\Auth\Register as BaseRegister;
-use Filament\Http\Responses\Auth\Contracts\RegistrationResponse;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\HtmlString;
 use Ysfkaya\FilamentPhoneInput\Forms\PhoneInput;
@@ -274,10 +275,45 @@ class Register extends BaseRegister
 
     public function register(): ?RegistrationResponse
     {
-        $response = parent::register();
+        try {
+            $this->rateLimit(2);
+        } catch (TooManyRequestsException $exception) {
+            $this->getRateLimitedNotification($exception)?->send();
 
+            return null;
+        }
+
+        $user = $this->wrapInDatabaseTransaction(function () {
+            $this->callHook('beforeValidate');
+
+            $data = $this->form->getState();
+
+            $this->callHook('afterValidate');
+
+            $data = $this->mutateFormDataBeforeRegister($data);
+
+            $this->callHook('beforeRegister');
+
+            $user = $this->handleRegistration($data);
+
+            $this->form->model($user)->saveRelationships();
+
+            $this->callHook('afterRegister');
+
+            return $user;
+        });
+
+        event(new \Filament\Events\Auth\Registered($user));
+
+        $this->sendEmailVerificationNotification($user);
+
+        \Filament\Facades\Filament::auth()->login($user);
+
+        session()->regenerate();
+
+        // GitHub fix (livewire/livewire#4332): keep browser CSRF token in sync
         $this->dispatch('sessionRegenerated', csrf_token());
 
-        return $response;
+        return app(RegistrationResponse::class);
     }
 }
