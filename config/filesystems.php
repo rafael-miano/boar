@@ -41,7 +41,9 @@ return [
         'public' => [
             'driver' => 'local',
             'root' => storage_path('app/public'),
-            'url' => env('APP_URL').'/storage',
+            // Laravel Cloud doesn't expose the /public/storage symlink reliably.
+            // We serve public-disk files through the app route defined in routes/web.php.
+            'url' => env('APP_URL').'/media/public',
             'visibility' => 'public',
             'throw' => false,
             'report' => false,

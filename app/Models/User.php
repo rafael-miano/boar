@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Filament\Panel;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class User extends Authenticatable implements FilamentUser, HasAvatar, MustVerifyEmail
@@ -81,9 +82,7 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, MustVerif
                     $path = 'profile-pictures/' . $path;
                 }
 
-                // Use /storage URLs; on hosts without the symlink, our /storage/{path}
-                // fallback route serves from the public disk.
-                return url('/storage/' . $path);
+                return Storage::disk('public')->url($path);
             }
             return $this->profile_picture;
         }
