@@ -41,7 +41,9 @@ return [
         'public' => [
             'driver' => 'local',
             'root' => storage_path('app/public'),
-            'url' => env('APP_URL').'/storage',
+            // Serve public disk files via the media.public route so we don't
+            // depend on a /storage symlink being available in production.
+            'url' => env('APP_URL').'/media/public',
             'visibility' => 'public',
             'throw' => false,
             'report' => false,
