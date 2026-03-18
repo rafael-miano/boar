@@ -213,23 +213,35 @@ class UserResource extends Resource
                         ->modalSubmitActionLabel('Reject')
                         ->visible(fn ($record) => $record->id_photo && ! $record->id_verified_at)
                         ->action(function ($record, array $data) {
-                            $record->update([
-                                'id_photo'            => null,
-                                'id_verified_at'      => null,
-                                'id_rejection_reason' => $data['rejection_reason'],
-                            ]);
+                            try {
+                                $reason = (string) ($data['rejection_reason'] ?? '');
 
-                            FilamentNotification::make()
-                                ->title('ID verification failed')
-                                ->body('Your ID was rejected. Reason: ' . $data['rejection_reason'] . '. Please log in and re-upload a valid government ID.')
-                                ->icon('heroicon-o-x-circle')
-                                ->color('danger')
-                                ->sendToDatabase($record);
+                                $record->update([
+                                    'id_photo'            => null,
+                                    'id_verified_at'      => null,
+                                    'id_rejection_reason' => $reason,
+                                ]);
 
-                            FilamentNotification::make()
-                                ->title('ID rejected')
-                                ->warning()
-                                ->send();
+                                FilamentNotification::make()
+                                    ->title('ID verification failed')
+                                    ->body('Your ID was rejected. Reason: ' . $reason . '. Please log in and re-upload a valid government ID.')
+                                    ->icon('heroicon-o-x-circle')
+                                    ->color('danger')
+                                    ->sendToDatabase($record);
+
+                                FilamentNotification::make()
+                                    ->title('ID rejected')
+                                    ->warning()
+                                    ->send();
+                            } catch (\Throwable $e) {
+                                report($e);
+
+                                FilamentNotification::make()
+                                    ->title('Reject failed')
+                                    ->body('Something went wrong while rejecting this ID. Please try again.')
+                                    ->danger()
+                                    ->send();
+                            }
                         }),
 
                     Tables\Actions\Action::make('revokeId')
