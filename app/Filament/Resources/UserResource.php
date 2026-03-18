@@ -44,7 +44,9 @@ class UserResource extends Resource
                     ->circular()
                     ->size(40)
                     ->alignment(Alignment::Center)
-                    ->defaultImageUrl(url('/img/no-profile-picture.svg')),
+                    ->getStateUsing(function (User $record): string {
+                        return $record->getFilamentAvatarUrl() ?? url('/img/no-profile-picture.svg');
+                    }),
                 Tables\Columns\TextColumn::make('name')
                     ->label('Full Name')
                     ->searchable(),
@@ -120,7 +122,9 @@ class UserResource extends Resource
                                         ->label('Profile Picture')
                                         ->circular()
                                         ->size(80)
-                                        ->defaultImageUrl(url('/img/no-profile-picture.svg')),
+                                        ->getStateUsing(function (User $record): string {
+                                            return $record->getFilamentAvatarUrl() ?? url('/img/no-profile-picture.svg');
+                                        }),
                                     TextEntry::make('name')->label('Full Name')->weight('bold'),
                                     TextEntry::make('email')->label('Email')->copyable(),
                                     TextEntry::make('role')->label('Role')->badge()
@@ -267,7 +271,9 @@ class UserResource extends Resource
                             ->label('Profile Picture')
                             ->circular()
                             ->size(100)
-                            ->defaultImageUrl(url('/img/no-profile-picture.svg')),
+                            ->getStateUsing(function (User $record): string {
+                                return $record->getFilamentAvatarUrl() ?? url('/img/no-profile-picture.svg');
+                            }),
                         TextEntry::make('name')->label('Full Name')->weight('bold')->size('lg'),
                         TextEntry::make('email')->label('Email')->copyable(),
                         TextEntry::make('role')->label('Role')->badge(),
