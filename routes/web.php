@@ -15,6 +15,24 @@ Route::get('/', function () {
     return view('home');
 });
 
+// Fallback for hosts that don't expose the /public/storage symlink.
+// If the symlink exists, the web server will serve files before Laravel.
+Route::get('/storage/{path}', function (string $path) {
+    if (Str::contains($path, '..')) {
+        abort(404);
+    }
+
+    $path = ltrim($path, '/');
+
+    if (! Storage::disk('public')->exists($path)) {
+        abort(404);
+    }
+
+    return Storage::disk('public')->response($path);
+})
+    ->where('path', '.*')
+    ->name('storage.public');
+
 // Serve public-disk files even when /public/storage symlink isn't available on the host.
 Route::get('/media/public/{path}', function (string $path) {
     if (Str::contains($path, '..')) {

@@ -81,8 +81,9 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, MustVerif
                     $path = 'profile-pictures/' . $path;
                 }
 
-                // Serve via the dedicated public-disk route to avoid relying on /storage symlinks.
-                return route('media.public', ['path' => $path]);
+                // Use /storage URLs; on hosts without the symlink, our /storage/{path}
+                // fallback route serves from the public disk.
+                return url('/storage/' . $path);
             }
             return $this->profile_picture;
         }
