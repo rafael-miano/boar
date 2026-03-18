@@ -41,7 +41,9 @@ return [
         'public' => [
             'driver' => 'local',
             'root' => storage_path('app/public'),
-            'url' => env('APP_URL').'/storage',
+            // Generate public URLs that go through the media.public route,
+            // which we know works on your hosting environment.
+            'url' => env('APP_URL').'/media/public',
             'visibility' => 'public',
             'throw' => false,
             'report' => false,
