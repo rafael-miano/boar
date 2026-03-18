@@ -71,12 +71,18 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, MustVerif
             if (!Str::startsWith($this->profile_picture, ['http://', 'https://'])) {
                 $path = ltrim($this->profile_picture, '/');
 
-                // For older records that only stored the basename, assume the default directory.
+                // Strip an accidental leading "storage/" if it was persisted that way.
+                if (str_starts_with($path, 'storage/')) {
+                    $path = substr($path, strlen('storage/'));
+                }
+
+                // For records that only stored the basename, assume the default directory.
                 if (! str_contains($path, '/')) {
                     $path = 'profile-pictures/' . $path;
                 }
 
-                return route('media.public', ['path' => $path]);
+                // Let the web server / platform serve from the public "storage" URL.
+                return '/storage/' . $path;
             }
             return $this->profile_picture;
         }
