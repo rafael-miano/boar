@@ -47,7 +47,6 @@ class BoarResource extends Resource
                                         'regex' => 'The boar name can only contain letters, numbers, spaces, hyphens, and apostrophes. Special symbols are not allowed.',
                                     ])
                                     ->extraInputAttributes([
-                                        'pattern' => "[a-zA-Z0-9\s'-]+",
                                         'oninput' => "this.value = this.value.replace(/[^a-zA-Z0-9\s'-]/g, '')",
                                     ]),
                                 Forms\Components\Select::make('boar_type')
