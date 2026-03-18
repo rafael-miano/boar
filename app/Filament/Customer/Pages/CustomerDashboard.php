@@ -386,12 +386,12 @@ class CustomerDashboard extends Page
         $user = $boar->user;
         $this->breederAvatarUrl = null;
         if (!empty($user->profile_picture)) {
-            $this->breederAvatarUrl = str_starts_with($user->profile_picture, 'http')
-                ? $user->profile_picture
-                : asset('storage/' . ltrim($user->profile_picture, '/'));
+            $this->breederAvatarUrl = $user->getFilamentAvatarUrl();
         }
         $this->boarAddress = $user->address;
-        $this->boarImage = $boar->boar_picture ? asset('storage/' . $boar->boar_picture) : asset('img/default_pfp.svg');
+        $this->boarImage = $boar->boar_picture
+            ? \Illuminate\Support\Facades\Storage::disk('public')->url($boar->boar_picture)
+            : asset('img/default_pfp.svg');
 
         $this->defaultPriceMoney = (int) ($boar->default_price_money ?? 0);
         $this->defaultDownpayment = (int) ($boar->default_downpayment ?? 0);
