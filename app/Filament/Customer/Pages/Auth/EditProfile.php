@@ -26,6 +26,15 @@ class EditProfile extends BaseEditProfile
                             ->image()
                             ->avatar()
                             ->disk('public')
+                            ->getUploadedFileUrlUsing(function ($file): ?string {
+                                if (! is_string($file) || $file === '') {
+                                    return null;
+                                }
+
+                                $path = ltrim($file, '/');
+
+                                return route('media.public', ['path' => $path]);
+                            })
                             ->imageResizeMode('cover')
                             ->imageCropAspectRatio('1:1')
                             ->imageResizeTargetWidth('400')
