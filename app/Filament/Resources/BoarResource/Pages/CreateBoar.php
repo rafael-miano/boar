@@ -44,6 +44,10 @@ class CreateBoar extends CreateRecord
 
     protected function afterCreate(): void
     {
+        if ($this->record->boar_picture) {
+            \App\Support\StorageHelper::fixExifOrientation($this->record->boar_picture);
+        }
+
         Notification::make()
             ->title('Boar Saved Successfully')
             ->body('The boar "' . $this->record->boar_name . '" has been created with type "' . $this->record->boar_type . '".')

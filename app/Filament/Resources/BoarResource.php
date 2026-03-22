@@ -110,8 +110,7 @@ class BoarResource extends Resource
                                     ->hiddenLabel()
                                     ->image()
                                     ->imageEditor()
-                                    ->orientImagesFromExif(true)
-                                    ->imageEditorAspectRatios([
+                                                                        ->imageEditorAspectRatios([
                                         '4:3',
                                         '1:1',
                                     ])

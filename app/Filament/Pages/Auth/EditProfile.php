@@ -45,8 +45,7 @@ class EditProfile extends BaseEditProfile
                                 ->avatar()
                                 ->disk(\App\Support\StorageHelper::uploadDisk())
                                 ->imageEditor()
-                                ->orientImagesFromExif(true)
-                                ->imageResizeMode('cover')
+                                                                ->imageResizeMode('cover')
                                 ->imageCropAspectRatio('1:1')
                                 ->imageResizeTargetWidth('400')
                                 ->imageResizeTargetHeight('400')
@@ -162,6 +161,11 @@ class EditProfile extends BaseEditProfile
     protected function afterSave(): void
     {
         $user = $this->getUser()->fresh();
+
+        // Fix EXIF rotation on images taken with mobile devices.
+        if ($user->profile_picture) {
+            \App\Support\StorageHelper::fixExifOrientation($user->profile_picture);
+        }
 
         if ($user->id_photo && $user->id_photo !== $this->originalIdPhoto) {
             $admins = User::where('role', 'admin')->get();

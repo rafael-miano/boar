@@ -56,6 +56,10 @@ class EditBoar extends EditRecord
 
     protected function afterSave(): void
     {
+        if ($this->record->boar_picture) {
+            \App\Support\StorageHelper::fixExifOrientation($this->record->boar_picture);
+        }
+
         Notification::make()
             ->title('Boar Saved Successfully')
             ->body('The boar "' . $this->record->boar_name . '" has been saved.')
