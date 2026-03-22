@@ -43,12 +43,17 @@ class EditProfile extends BaseEditProfile
                                 ->label('')
                                 ->image()
                                 ->avatar()
+                                ->imageEditor()
+                                ->orientImagesFromExif(true)
+                                ->imageCropAspectRatio('1:1')
+                                ->imageResizeMode('cover')
+                                ->imageResizeTargetWidth('400')
+                                ->imageResizeTargetHeight('400')
                                 ->disk(\App\Support\StorageHelper::uploadDisk())
                                 ->directory('profile-pictures')
                                 ->visibility('public')
-                                ->maxSize(10240)
-                                ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp', 'image/gif'])
-                                ->helperText('Max 10MB. JPEG, PNG or WebP.')
+                                ->maxSize(5120)
+                                ->helperText('Max 5MB. Square image recommended.')
                                 ->extraAttributes(['class' => 'flex justify-center']),
                         ])
                         ->columnSpan(['default' => 1, 'md' => 1]),
@@ -157,11 +162,6 @@ class EditProfile extends BaseEditProfile
     protected function afterSave(): void
     {
         $user = $this->getUser()->fresh();
-
-        // Server-side: fix EXIF rotation + resize (avoids mobile canvas failures).
-        if ($user->profile_picture) {
-            \App\Support\StorageHelper::processUploadedImage($user->profile_picture, 400, 400);
-        }
 
         if ($user->id_photo && $user->id_photo !== $this->originalIdPhoto) {
             $admins = User::where('role', 'admin')->get();
