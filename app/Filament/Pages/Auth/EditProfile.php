@@ -44,6 +44,8 @@ class EditProfile extends BaseEditProfile
                                 ->image()
                                 ->avatar()
                                 ->disk('public')
+                                ->imageEditor()
+                                ->orientImagesFromExif(true)
                                 ->imageResizeMode('cover')
                                 ->imageCropAspectRatio('1:1')
                                 ->imageResizeTargetWidth('400')

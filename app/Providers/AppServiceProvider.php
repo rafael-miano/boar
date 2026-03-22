@@ -13,6 +13,8 @@ use Filament\Support\Facades\FilamentColor;
 use Filament\Notifications\Livewire\Notifications;
 use Filament\Support\Enums\Alignment;
 use Filament\Support\Enums\VerticalAlignment;
+use Intervention\Image\Laravel\Facades\Image;
+use Intervention\Image\Drivers\Gd\Driver;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -27,10 +29,9 @@ class AppServiceProvider extends ServiceProvider
     ];
     public function register(): void
     {
-        // $this->app->singleton(
-        //     \Filament\Http\Responses\Auth\Contracts\LogoutResponse::class,
-        //     LogoutResponse::class
-        // );
+        // Bind Intervention Image with the GD driver so uploaded photos from mobile
+        // devices have their EXIF orientation corrected automatically.
+        $this->app->bind('image', fn () => new \Intervention\Image\ImageManager(new Driver()));
     }
 
     /**
