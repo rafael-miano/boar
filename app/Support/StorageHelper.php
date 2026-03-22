@@ -19,12 +19,19 @@ class StorageHelper
     }
 
     /**
-     * Read the EXIF orientation from a file on the public disk and rotate
-     * the image pixels so it displays correctly on any device/browser.
-     * Mobile phones embed EXIF rotation in JPEGs without rotating the pixels.
+     * Fix EXIF orientation AND resize the image server-side.
+     *
+     * Client-side canvas resizing (Filepond image-transform) silently fails on
+     * large mobile photos due to browser memory limits, producing empty files.
+     * We skip all client-side processing and do everything here instead:
+     *   1. Apply EXIF rotation so portrait/landscape is correct.
+     *   2. Scale the image down to $maxWidth × $maxHeight (preserving aspect ratio).
      */
-    public static function fixExifOrientation(string $diskPath): void
-    {
+    public static function processUploadedImage(
+        string $diskPath,
+        int $maxWidth = 400,
+        int $maxHeight = 400,
+    ): void {
         if (! class_exists(ImageManager::class)) {
             return;
         }
@@ -36,15 +43,12 @@ class StorageHelper
                 return;
             }
 
-            $exif        = @exif_read_data($fullPath);
-            $orientation = $exif['Orientation'] ?? 1;
-
-            if ($orientation === 1) {
-                return; // Already correct — nothing to do.
-            }
-
             $manager = new ImageManager(new Driver());
             $image   = $manager->read($fullPath);
+
+            // 1. Fix EXIF orientation (mobile phones store rotation in metadata).
+            $exif        = @exif_read_data($fullPath);
+            $orientation = $exif['Orientation'] ?? 1;
 
             match ($orientation) {
                 2 => $image->flip(),
@@ -57,9 +61,18 @@ class StorageHelper
                 default => null,
             };
 
+            // 2. Scale down to target dimensions (never upscale).
+            $image->scaleDown(width: $maxWidth, height: $maxHeight);
+
             $image->save($fullPath);
         } catch (\Throwable) {
-            // Never break the save — orientation correction is best-effort.
+            // Never break the save — image processing is best-effort.
         }
+    }
+
+    /** @deprecated Use processUploadedImage() instead */
+    public static function fixExifOrientation(string $diskPath): void
+    {
+        self::processUploadedImage($diskPath);
     }
 }

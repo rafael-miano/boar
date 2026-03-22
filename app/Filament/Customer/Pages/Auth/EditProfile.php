@@ -15,10 +15,10 @@ class EditProfile extends BaseEditProfile
 {
     protected function afterSave(): void
     {
-        // Fix EXIF rotation on images taken with mobile devices.
+        // Server-side: fix EXIF rotation + resize (avoids mobile canvas failures).
         $user = $this->getUser()->fresh();
         if ($user->profile_picture) {
-            \App\Support\StorageHelper::fixExifOrientation($user->profile_picture);
+            \App\Support\StorageHelper::processUploadedImage($user->profile_picture, 400, 400);
         }
 
         // Full page redirect so the top-bar avatar reloads with the new profile picture.
@@ -36,16 +36,12 @@ class EditProfile extends BaseEditProfile
                             ->label('Profile image')
                             ->image()
                             ->avatar()
-                            // ->imageEditor()
                             ->disk(\App\Support\StorageHelper::uploadDisk())
-                                                        ->imageResizeMode('cover')
-                            ->imageCropAspectRatio('1:1')
-                            ->imageResizeTargetWidth('400')
-                            ->imageResizeTargetHeight('400')
                             ->directory('profile-pictures')
                             ->visibility('public')
-                            ->maxSize(2048)
-                            ->helperText('Upload a photo for your profile. Max 2MB.'),
+                            ->maxSize(10240)
+                            ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp', 'image/gif'])
+                            ->helperText('Max 10MB. JPEG, PNG or WebP.'),
                     ])
                     ->columns(1)
                     ->extraAttributes(['class' => 'flex flex-col items-center md:items-start']),
