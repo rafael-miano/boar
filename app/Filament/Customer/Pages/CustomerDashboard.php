@@ -165,14 +165,14 @@ class CustomerDashboard extends Page
                                 ->schema([
                                     ViewField::make('selected_boar_info')
                                         ->view('filament.forms.components.selected-boar-info')
-                                        ->viewData([
-                                            'boarName' => $this->boarName,
-                                            'boarType' => $this->boarType,
-                                            'breederName' => $this->breederName,
-                                            'breederPhone' => $this->breederPhone,
-                                            'breederAvatarUrl' => $this->breederAvatarUrl,
-                                            'boarAddress' => $this->boarAddress,
-                                            'boarImage' => $this->boarImage,
+                                        ->viewData(fn() => [
+                                            'boarName'        => $this->boarName,
+                                            'boarType'        => $this->boarType,
+                                            'breederName'     => $this->breederName,
+                                            'breederPhone'    => $this->breederPhone,
+                                            'breederAvatarUrl'=> $this->breederAvatarUrl,
+                                            'boarAddress'     => $this->boarAddress,
+                                            'boarImage'       => $this->boarImage,
                                         ])
                                         ->columnSpan(['default' => 1, 'md' => 1]),
 
