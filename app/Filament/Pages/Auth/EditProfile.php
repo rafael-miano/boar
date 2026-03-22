@@ -44,7 +44,7 @@ class EditProfile extends BaseEditProfile
                                 ->image()
                                 ->avatar()
                                 ->disk(\App\Support\StorageHelper::uploadDisk())
-                                ->imageEditor()
+                                // ->imageEditor()
                                                                 ->imageResizeMode('cover')
                                 ->imageCropAspectRatio('1:1')
                                 ->imageResizeTargetWidth('400')
