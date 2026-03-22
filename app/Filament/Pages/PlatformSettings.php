@@ -58,7 +58,7 @@ class PlatformSettings extends Page implements HasForms
                         FileUpload::make('gcash_qr_image')
                             ->label('GCash QR code')
                             ->image()
-                            ->disk('public')
+                            ->disk(\App\Support\StorageHelper::uploadDisk())
                             ->directory('platform-gcash-qr')
                             ->visibility('public')
                             ->maxSize(2048),

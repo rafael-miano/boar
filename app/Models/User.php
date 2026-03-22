@@ -9,8 +9,8 @@ use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use App\Support\StorageHelper;
 use Filament\Panel;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class User extends Authenticatable implements FilamentUser, HasAvatar, MustVerifyEmail
@@ -82,7 +82,7 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, MustVerif
                     $path = 'profile-pictures/' . $path;
                 }
 
-                return Storage::disk('public')->url($path);
+                return StorageHelper::url($path);
             }
             return $this->profile_picture;
         }

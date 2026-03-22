@@ -149,7 +149,7 @@ class UserResource extends Resource
                                 ->schema([
                                     ImageEntry::make('id_photo')
                                         ->label('Submitted ID Photo')
-                                        ->disk('public')
+                                        ->disk(\App\Support\StorageHelper::uploadDisk())
                                         ->height(220)
                                         ->defaultImageUrl(url('/img/no-image.svg')),
                                     TextEntry::make('id_verified_at')
@@ -299,7 +299,7 @@ class UserResource extends Resource
                     ->schema([
                         ImageEntry::make('id_photo')
                             ->label('Submitted ID Photo')
-                            ->disk('public')
+                            ->disk(\App\Support\StorageHelper::uploadDisk())
                             ->height(220)
                             ->defaultImageUrl(url('/img/no-image.svg')),
                         TextEntry::make('id_verified_at')

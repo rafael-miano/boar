@@ -247,7 +247,7 @@ class BoarReservationResource extends Resource
                             ->visible(fn ($record) => $record->service_fee_type === 'money'),
                         ImageEntry::make('payment_receipt_image')
                             ->label('Your payment receipt')
-                            ->disk('public')
+                            ->disk(\App\Support\StorageHelper::uploadDisk())
                             ->height(120)
                             ->visible(fn ($record) => $record->service_fee_type === 'money' && $record->payment_receipt_image),
                         TextEntry::make('payment_receipt_image')

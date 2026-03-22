@@ -51,7 +51,7 @@ class Settlement extends Page implements HasForms
                     ->validationAttribute('GCash Payment Receipt')
                     ->helperText('Upload a screenshot of your GCash payment confirmation. Accepted: JPEG, PNG. Max 5MB.')
                     ->image()
-                    ->disk('public')
+                    ->disk(\App\Support\StorageHelper::uploadDisk())
                     ->directory('platform-fee-receipts')
                     ->visibility('public')
                     ->maxSize(5120)

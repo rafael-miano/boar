@@ -31,7 +31,7 @@ class EditProfile extends BaseEditProfile
                             ->image()
                             ->avatar()
                             ->imageEditor()
-                            ->disk('public')
+                            ->disk(\App\Support\StorageHelper::uploadDisk())
                             ->orientImagesFromExif(true)
                             ->imageResizeMode('cover')
                             ->imageCropAspectRatio('1:1')

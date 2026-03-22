@@ -123,7 +123,7 @@ class PlatformFeeSettlementResource extends Resource
                                 ->schema([
                                     ImageEntry::make('receipt_image')
                                         ->label('GCash Receipt')
-                                        ->disk('public')
+                                        ->disk(\App\Support\StorageHelper::uploadDisk())
                                         ->height(280)
                                         ->defaultImageUrl(url('/img/no-image.svg')),
                                 ])

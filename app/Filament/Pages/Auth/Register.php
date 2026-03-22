@@ -82,7 +82,7 @@ class Register extends BaseRegister
                                                 ->image()
                                                 ->imageEditor()
                                                 ->imagePreviewHeight('150')
-                                                ->disk('public')
+                                                ->disk(\App\Support\StorageHelper::uploadDisk())
                                                 ->directory('profile-pictures')
                                                 ->visibility('public')
                                                 ->extraAttributes(['class' => 'block mx-auto']),
@@ -194,7 +194,7 @@ class Register extends BaseRegister
                                                     ->label('Government-Issued ID Photo')
                                                     ->helperText('Accepted: JPEG, PNG. Max 5MB. Make sure the ID is clearly readable.')
                                                     ->image()
-                                                    ->disk('public')
+                                                    ->disk(\App\Support\StorageHelper::uploadDisk())
                                                     ->directory('id-photos')
                                                     ->visibility('public')
                                                     ->maxSize(5120)

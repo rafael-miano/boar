@@ -246,7 +246,7 @@ class ApprovedReservationResource extends Resource
                                     ->visible(fn ($record) => $record->boar_raiser_share !== null),
                                 ImageEntry::make('payment_receipt_image')
                                     ->label('Payment receipt')
-                                    ->disk('public')
+                                    ->disk(\App\Support\StorageHelper::uploadDisk())
                                     ->height(140)
                                     ->visible(fn ($record) => $record->service_fee_type === 'money' && $record->payment_receipt_image),
                                 TextEntry::make('payment_status')
@@ -613,7 +613,7 @@ class ApprovedReservationResource extends Resource
                             ->visible(fn ($record) => $record->boar_raiser_share !== null),
                         ImageEntry::make('payment_receipt_image')
                             ->label('Payment receipt')
-                            ->disk('public')
+                            ->disk(\App\Support\StorageHelper::uploadDisk())
                             ->height(140)
                             ->visible(fn ($record) => $record->service_fee_type === 'money' && $record->payment_receipt_image),
                         TextEntry::make('payment_status')

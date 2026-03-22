@@ -76,7 +76,7 @@
                     <!-- Boar Image Container - Fixed Height -->
                     <div class="w-full bg-gray-200 overflow-hidden" style="height: 180px; min-height: 180px; max-height: 180px;">
                         @if($boar->boar_picture)
-                            <img src="{{ \Illuminate\Support\Facades\Storage::disk('public')->url($boar->boar_picture) }}"
+                            <img src="{{ \App\Support\StorageHelper::url($boar->boar_picture) }}"
                                  alt="{{ $boar->boar_name }}"
                                  class="w-full h-full object-cover object-center"
                                  style="width: 100%; height: 180px; min-height: 180px; max-height: 180px; object-fit: cover; object-position: center;">

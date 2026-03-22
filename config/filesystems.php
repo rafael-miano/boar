@@ -41,23 +41,25 @@ return [
         'public' => [
             'driver' => 'local',
             'root' => storage_path('app/public'),
-            // Laravel Cloud doesn't expose the /public/storage symlink reliably.
-            // We serve public-disk files through the app route defined in routes/web.php.
+            // Served via the /media/public/{path} fallback route (routes/web.php).
             'url' => env('APP_URL').'/media/public',
             'visibility' => 'public',
             'throw' => false,
             'report' => false,
         ],
 
+        // Persistent object storage for production (Laravel Cloud / S3-compatible).
+        // All uploaded files go here when AWS_BUCKET is configured.
         's3' => [
             'driver' => 's3',
             'key' => env('AWS_ACCESS_KEY_ID'),
             'secret' => env('AWS_SECRET_ACCESS_KEY'),
-            'region' => env('AWS_DEFAULT_REGION'),
+            'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
             'bucket' => env('AWS_BUCKET'),
             'url' => env('AWS_URL'),
             'endpoint' => env('AWS_ENDPOINT'),
             'use_path_style_endpoint' => env('AWS_USE_PATH_STYLE_ENDPOINT', false),
+            'visibility' => 'public',
             'throw' => false,
             'report' => false,
         ],

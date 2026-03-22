@@ -390,7 +390,7 @@ class CustomerDashboard extends Page
         }
         $this->boarAddress = $user->address;
         $this->boarImage = $boar->boar_picture
-            ? \Illuminate\Support\Facades\Storage::disk('public')->url($boar->boar_picture)
+            ? \App\Support\StorageHelper::url($boar->boar_picture)
             : asset('img/default_pfp.svg');
 
         $this->defaultPriceMoney = (int) ($boar->default_price_money ?? 0);
