@@ -10,6 +10,9 @@ use Filament\Support\Facades\FilamentAsset;
 use Filament\Http\Responses\Auth\Contracts\RegistrationResponse as RegistrationResponseContract;
 use Filament\Support\Colors\Color;
 use Filament\Support\Facades\FilamentColor;
+use Filament\Notifications\Livewire\Notifications;
+use Filament\Support\Enums\Alignment;
+use Filament\Support\Enums\VerticalAlignment;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -46,5 +49,8 @@ class AppServiceProvider extends ServiceProvider
             'panels::sidebar.expand-button' => $isRtl ? 'ri-arrow-right-double-fill' : 'ri-arrow-right-double-fill',
             'pink' => Color::hex('#AD1457'),
         ]);
+
+         Notifications::alignment(Alignment::Start);
+         Notifications::verticalAlignment(VerticalAlignment::End);
     }
 }
