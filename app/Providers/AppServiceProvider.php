@@ -50,7 +50,7 @@ class AppServiceProvider extends ServiceProvider
             'pink' => Color::hex('#AD1457'),
         ]);
 
-         Notifications::alignment(Alignment::Start);
+         Notifications::alignment(Alignment::End);
          Notifications::verticalAlignment(VerticalAlignment::End);
     }
 }
