@@ -30,7 +30,6 @@ class EditProfile extends BaseEditProfile
                             ->label('Profile image')
                             ->image()
                             ->avatar()
-                            ->imageEditor()
                             ->orientImagesFromExif(true)
                             ->imageCropAspectRatio('1:1')
                             ->imageResizeMode('cover')

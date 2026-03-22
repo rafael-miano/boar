@@ -45,7 +45,15 @@ Route::get('/media/public/{path}', function (string $path) {
         abort(404);
     }
 
-    return Storage::disk('public')->response($path);
+    $fullPath = Storage::disk('public')->path($path);
+
+    // Detect the real MIME type from file content (not extension) so a JPEG
+    // saved with a .png extension still renders correctly in all browsers.
+    $mime = function_exists('mime_content_type')
+        ? (mime_content_type($fullPath) ?: Storage::disk('public')->mimeType($path))
+        : Storage::disk('public')->mimeType($path);
+
+    return response()->file($fullPath, ['Content-Type' => $mime]);
 })
     ->where('path', '.*')
     ->name('media.public');
