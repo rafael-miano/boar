@@ -13,25 +13,19 @@ use Filament\Support\Facades\FilamentColor;
 use Filament\Notifications\Livewire\Notifications;
 use Filament\Support\Enums\Alignment;
 use Filament\Support\Enums\VerticalAlignment;
-use Intervention\Image\Laravel\Facades\Image;
-use Intervention\Image\Drivers\Gd\Driver;
-
 class AppServiceProvider extends ServiceProvider
 {
-    /**
-     * Register any application services.
-     */
     public $singletons = [
         \Filament\Http\Responses\Auth\Contracts\LoginResponse::class => \App\Http\Responses\LoginResponse::class,
         \Filament\Http\Responses\Auth\Contracts\LogoutResponse::class => LogoutResponse::class,
         \Filament\Http\Responses\Auth\Contracts\PasswordResetResponse::class => \App\Http\Responses\PasswordResetResponse::class,
         RegistrationResponseContract::class => \App\Http\Responses\RegistrationResponse::class,
     ];
+
     public function register(): void
     {
-        // Bind Intervention Image with the GD driver so uploaded photos from mobile
-        // devices have their EXIF orientation corrected automatically.
-        $this->app->bind('image', fn () => new \Intervention\Image\ImageManager(new Driver()));
+        // Intervention Image v3 is auto-discovered via its own ServiceProvider.
+        // No manual binding needed — Filament calls ImageManager::gd() directly.
     }
 
     /**
