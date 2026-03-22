@@ -13,7 +13,12 @@ use Filament\Forms\Form;
  */
 class EditProfile extends BaseEditProfile
 {
-    // Form (including profile image upload) is inherited from BaseEditProfile.
+    protected function afterSave(): void
+    {
+        // Full page redirect so the top-bar avatar reloads with the new profile picture.
+        $this->redirect(request()->header('Referer') ?: filament()->getUrl());
+    }
+
     public function form(Form $form): Form
     {
         return $form

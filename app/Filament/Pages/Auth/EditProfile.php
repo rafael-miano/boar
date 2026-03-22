@@ -178,6 +178,9 @@ class EditProfile extends BaseEditProfile
                     ->sendToDatabase($admin);
             }
         }
+
+        // Full page redirect so the top-bar avatar reloads with the new profile picture.
+        $this->redirect(request()->header('Referer') ?: filament()->getUrl());
     }
 
     protected function getPasswordFormComponent(): \Filament\Forms\Components\TextInput
